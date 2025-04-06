@@ -3,93 +3,191 @@
 
 This project sets up a **multi-node local Kubernetes cluster** using [Kind](https://kind.sigs.k8s.io/), and demonstrates basic Kubernetes operations like creating namespaces, deploying pods, and accessing containers.
 
----
 
-## 📁 Folder Structure
+## 🧠 Core Concepts
+- Monolithic vs Microservices
+- Kubernetes Architecture  
+- `kubectl cluster-info` - Display cluster information 🛰️
 
-.
-├── kind-cluster/        # Cluster configuration files
-│   └── config.yml       # Kind cluster definition
-├── pod.yml              # NGINX pod YAML definition
-└── README.md            # Project documentation
-
----
-
-## 🛠️ Prerequisites
-
-- [Docker](https://www.docker.com/)
-- [Kind](https://kind.sigs.k8s.io/)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/)
-
-Ensure Docker is running before creating the cluster.
-
----
-
-## 🚀 Create Cluster
-
+## 💻 Setup On Local / AWS EC2
+```bash
 kind create cluster --name=tws-cluster --config=config.yml
-kubectl get nodes
-kubectl get ns
+kubectl config use-context kind-tws-cluster
+```
 
----
+## 🧩 Kubectl and Pods
+```bash
+kubectl get nodes                             # 🔍 View nodes
+kubectl run nginx --image=nginx -n nginx      # 🚀 Launch pod
+kubectl describe pod nginx -n nginx           # 📄 Pod info
+```
 
-## 🧱 Create Namespace
+## 🗂️ Namespaces, Labels, Selectors, Annotations
+```bash
+kubectl create namespace monitoring           # ➕ New namespace
+kubectl get namespace                         # 📋 List namespaces
+kubectl label namespace monitoring team=devops # 🏷️ Add label
+kubectl describe namespace monitoring         # ℹ️ Details
+```
 
-kubectl create ns nginx
-kubectl get ns
+## ⚙️ Workloads
 
----
+### 🛠️ Deployments
+```bash
+kubectl apply -f deployment.yml
+kubectl scale deployment nginx-deployment --replicas=3 -n nginx
+```
 
-## 🚀 Deploy Pod
+### 🧬 StatefulSets
+```bash
+kubectl apply -f statefulset.yml
+kubectl describe statefulset mysql -n database
+```
 
-### Option 1: From Command Line
+### 🧹 DaemonSets
+```bash
+kubectl apply -f daemonset.yml
+kubectl describe daemonset fluentd -n logging
+```
 
-kubectl run nginx --image=nginx -n nginx
+### 🧪 ReplicaSets
+```bash
+kubectl apply -f replicaset.yml
+kubectl describe replicaset nginx-replicaset -n nginx
+```
 
-### Option 2: From YAML
+### ⏱️ Jobs and CronJobs
+```bash
+kubectl apply -f job.yml
+kubectl apply -f cronjob.yml
+```
 
-kubectl apply -f pod.yml
+## 🌐 Networking
 
-#### Sample pod.yml:
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-pod
-  namespace: nginx
-spec:
-  containers:
-    - name: nginx-container
-      image: nginx
+### 🔌 Cluster Networking
+```bash
+kubectl get svc -A
+```
 
----
+### 📡 Services
+```bash
+kubectl apply -f service.yml
+kubectl describe svc nginx-service -n nginx
+```
 
-## 🔍 Check Pod and Namespace
+### 🚪 Ingress
+```bash
+kubectl apply -f ingress.yml
+kubectl describe ingress nginx-ingress -n nginx
+```
 
-kubectl get pods -n nginx
-kubectl describe pod/nginx-pod -n nginx
+### 🔒 Network Policies
+```bash
+kubectl apply -f networkpolicy.yml
+```
 
----
+## 💾 Storage
 
-## 💻 Access Pod Shell
+### 🧱 PVs and PVCs
+```bash
+kubectl apply -f persistentVolume.yml
+kubectl apply -f persistentVolumeClaim.yml
+```
 
-kubectl exec -it nginx-pod -n nginx -- bash
+### 📦 Storage Classes
+```bash
+kubectl get storageclass
+```
 
----
+## 🛠️ ConfigMaps and Secrets
+```bash
+kubectl create configmap app-config --from-file=config.properties
+kubectl create secret generic db-credentials   --from-literal=username=admin --from-literal=password=admin123
+```
 
-## 🗑️ Delete Resources
+## 📈 Scaling and Scheduling
 
-kubectl delete pod nginx -n nginx
-kubectl delete ns nginx
+### 📊 HPA and VPA
+```bash
+kubectl autoscale deployment nginx --cpu-percent=50 --min=1 --max=10 -n nginx
+kubectl apply -f vpa.yml
+```
 
----
+### 📍 Node Affinity & Taints
+```bash
+kubectl taint nodes node1 key=value:NoSchedule
+kubectl apply -f node-affinity.yml
+```
 
-## 🧼 Cleanup Cluster
+### 🚦 Resource Quotas & Probes
+```bash
+kubectl apply -f resourcequota.yml
+kubectl describe quota my-quota -n dev
+```
 
-kind delete cluster --name=tws-cluster
+## 🔐 Cluster Administration
 
----
+### 🧑‍⚖️ RBAC
+```bash
+kubectl apply -f role.yml
+kubectl apply -f rolebinding.yml
+```
 
-## 🙌 Thanks for Learning Kubernetes with Kind!
+### 📄 CRDs
+```bash
+kubectl apply -f crd.yml
+kubectl get crd
+```
 
-Feel free to expand this setup with Deployments, Services, Ingress, or Helm charts.
-"@ > README.md
+## 📊 Monitoring and Logging
+
+### 📏 Metrics Server
+```bash
+kubectl apply -f metrics-server.yml
+kubectl top node
+```
+
+### 📈 Prometheus and Grafana
+```bash
+helm install prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring
+kubectl port-forward svc/prometheus-stack-grafana 3000:80 -n monitoring --address=0.0.0.0
+```
+
+## 🧩 Advanced Features
+
+### 🧰 Helm
+```bash
+helm create my-chart
+helm install my-app my-chart -n my-namespace --create-namespace
+```
+
+### 🧼 Init & SideCar Containers
+```bash
+kubectl apply -f init-container.yml
+kubectl apply -f sidecar-container.yml
+```
+
+## 🔐 Security
+```bash
+kubectl apply -f podsecuritypolicy.yml
+kubectl apply -f secrets-encryption.yml
+```
+
+## ☁️ Cloud-Native Kubernetes
+
+### 🌍 Managed Services
+```bash
+eksctl create cluster --name my-cluster
+```
+
+### ⚙️ Cluster Autoscaler
+```bash
+kubectl apply -f cluster-autoscaler.yml
+```
+
+## 🛠️ Debugging and Troubleshooting
+```bash
+kubectl logs pod-name -n namespace
+kubectl describe pod pod-name -n namespace
+kubectl exec -it pod-name -n namespace -- bash
+```
